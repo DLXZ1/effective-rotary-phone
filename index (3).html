@@ -1,0 +1,350 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>H2Woah! - Innovative Water Solutions</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(45deg, #0a1f3a, #1a4a7c), 
+                       url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100"%3E%3Cpath d="M0 50 Q25 75, 50 50 T100 50" fill="none" stroke="%23004d99" stroke-width="1" opacity="0.2"/%3E%3C/svg%3E') repeat;
+            color: #e0e0ff;
+            overflow-x: hidden;
+        }
+        .header {
+            position: relative;
+            height: 100vh;
+            text-align: center;
+            color: #e0e0ff;
+            background: linear-gradient(135deg, rgba(10, 31, 58, 0.8), rgba(26, 74, 124, 0.8));
+            overflow: hidden;
+        }
+        .header-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+        }
+        .header h1 {
+            font-size: 4em;
+            margin: 0;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff; }
+            to { text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff; }
+        }
+        .header p {
+            font-size: 1.5em;
+            margin: 10px 0;
+        }
+        .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: none;
+        }
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+            background: #ffffff;
+            align-items: center;
+        }
+        .nav .logo {
+            height: 50px; /* Adjust height as needed */
+        }
+        .nav a {
+            color: #0a1f3a;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s;
+            margin: 0 10px;
+        }
+        .nav a:hover {
+            color: #1a4a7c;
+        }
+        .nav .audio-controls {
+            display: flex;
+            align-items: center;
+        }
+        .nav .audio-controls button {
+            margin-left: 10px;
+            padding: 5px 10px;
+        }
+        .nav .audio-controls #volumeControl {
+            margin-left: 10px;
+            color: #0a1f3a;
+        }
+        .section {
+            padding: 50px;
+            text-align: center;
+        }
+        .card {
+            display: inline-block;
+            width: 300px;
+            padding: 20px;
+            margin: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 255, 255, 0.2);
+            backdrop-filter: blur(5px);
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background: #00bcd4;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px #00ffff;
+        }
+        .footer {
+            background: #0a1f3a;
+            color: #e0e0ff;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            grid-gap: 50px, 10px;
+            text-align: left;
+            position:relative;
+            padding: 50px;
+            min-height: 200px;
+        }
+        .footer-content {
+        display: contents; /* Allows grid children to behave as direct grid items */
+        }
+        .footer .copyright {
+        position: absolute;
+        bottom: 10px; /* Distance from bottom of viewport */
+        left: 50%; /* Center horizontally */
+        transform: translateX(-50%); /* Adjust for center alignment */
+        text-align: center;
+        width: 100%; /* Ensure it spans the footer width */
+        }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <img src="logo.png" alt="H2Woah Logo" class="logo">
+        <div>
+            <a href="#">Home</a>
+            <a href="#">Learn</a>
+            <a href="#">DIY Water Saving Guides</a>
+            <a href="#">Tools & Recommendations</a>
+            <a href="#">Community</a>
+            <a href="#">AI Tools</a>
+            <input type="text" placeholder="Search..." style="color: #333;">
+            <a href="#">Support</a>
+            <a href="#">Log In</a>
+        </div>
+        <div class="audio-controls">
+            <button id="muteButton">Unmute</button>
+            <div id="volumeControl">
+                Volume: <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.5">
+            </div>
+        </div>
+    </div>
+    <div class="header">
+        <canvas id="particleCanvas" class="particles"></canvas>
+        <div class="header-content">
+            <h1>Welcome to H2Woah!</h1>
+            <p>Empowering smarter water use through AI, community, and creativity</p>
+            <button>Explore Now</button>
+        </div>
+    </div>
+    <div class="section">
+        <h2>Featured Articles</h2>
+        <div class="card"><h3>Tips</h3><p>10 Easy Ways to Save Water at Home</p><p>Jane Doe</p></div>
+        <div class="card"><h3>DIY</h3><p>DIY Rainwater Harvesting Systems</p><p>Jane Doe</p></div>
+        <div class="card"><h3>Community</h3><p>Community Efforts for Water Conservation</p><p>Jane Doe</p></div>
+    </div>
+    <div class="section" style="background: rgba(224, 247, 250, 0.1);">
+        <h2>Our Tools & Resources</h2>
+        <div class="card"><h3>Saving Calculator</h3><p>Estimate your potential water savings and environmental impact.</p><button>Learn More</button></div>
+        <div class="card"><h3>Tips & Guides</h3><p>Access a wealth of practical tips, DIY guides, and expert advice on water conservation.</p><button>View Tips</button></div>
+    </div>
+    <div class="section">
+        <h2>Join Our Community</h2>
+        <div class="card"><p>Connect with like-minded individuals, share ideas, and collaborate on water-saving initiatives.</p><button>Join Now</button></div>
+    </div>
+    <div class="footer">
+        <div>H2Woah! <br> Empower smarter water use through AI, community, and creativity</div>
+        <div>Quick Links: <br> Home <br> Learn <br> DIY Guides <br> Tools <br> Community <br> AI Tools</div>
+        <div>Resources: Articles <br> Tools <br> Guides <br> FAQ</div>
+        <div>Connect With Us <br> <span>🌐</span> <span>📱</span> <span>📧</span></div>
+        <div class="copyright">© 2025 H2Woah!. All rights reserved.</div>
+    </div>
+
+    <!-- JavaScript with muted autoplay -->
+    <script>
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let particlesArray = [];
+        const numberOfParticles = 150;
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 4 + 1;
+                this.speedX = Math.random() * 2 - 1;
+                this.speedY = Math.random() * 2 - 1;
+                this.color = `hsl(${Math.random() * 360}, 70%, 60%)`;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+            }
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function init() {
+            for (let i = 0; i < numberOfParticles; i++) {
+                particlesArray.push(new Particle());
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < particlesArray.length; i++) {
+                particlesArray[i].update();
+                particlesArray[i].draw();
+                for (let j = i; j < particlesArray.length; j++) {
+                    const dx = particlesArray[i].x - particlesArray[j].x;
+                    const dy = particlesArray[i].y - particlesArray[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance < 150) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(0, 255, 255, ${1 - distance / 150})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.moveTo(particlesArray[i].x, particlesArray[i].y);
+                        ctx.lineTo(particlesArray[j].x, particlesArray[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(animate);
+        }
+
+        init();
+        animate();
+
+        // Audio Setup with muted autoplay
+        document.addEventListener('DOMContentLoaded', () => {
+            const backgroundMusic = document.getElementById('backgroundMusic');
+            if (!backgroundMusic) {
+                console.error('Audio element not found!');
+                return;
+            }
+            console.log('Audio element found, src:', backgroundMusic.src, 'readyState:', backgroundMusic.readyState);
+
+            let isMuted = true; // Start muted to allow autoplay
+            let volumeLevel = 0.5; // Initial volume (50%)
+
+            // Set initial volume and mute state
+            backgroundMusic.volume = volumeLevel;
+            backgroundMusic.muted = isMuted;
+
+            // Attempt to autoplay muted
+            backgroundMusic.play().then(() => {
+                console.log('Audio autoplayed muted successfully');
+            }).catch(error => {
+                console.log('Autoplay failed (muted):', error);
+                alert("Audio autoplay is blocked. Please click 'Unmute' to start the music.");
+            });
+
+            function toggleMute() {
+                isMuted = !isMuted;
+                const button = document.getElementById('muteButton');
+                button.textContent = isMuted ? 'Unmute' : 'Mute';
+                backgroundMusic.muted = isMuted;
+                console.log('Mute toggled, isMuted:', isMuted, 'paused:', backgroundMusic.paused);
+                if (!isMuted && backgroundMusic.paused) {
+                    backgroundMusic.play().then(() => {
+                        console.log('Audio unmuted and started');
+                    }).catch(error => {
+                        console.log('Unmute failed:', error);
+                    });
+                }
+            }
+
+            const volumeSlider = document.getElementById('volumeSlider');
+            volumeSlider.addEventListener('input', () => {
+                volumeLevel = parseFloat(volumeSlider.value);
+                backgroundMusic.volume = volumeLevel;
+                console.log('Volume adjusted to:', volumeLevel);
+            });
+
+            document.getElementById('muteButton').addEventListener('click', toggleMute);
+        });
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            particlesArray = [];
+            init();
+        });
+    </script>
+    <!-- Replace the src attribute in the following audio tag with the path to your .mp3 file -->
+    <audio id="backgroundMusic" src="111.mp3" loop></audio>
+</body>
+</html>
